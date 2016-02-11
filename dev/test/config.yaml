@@ -1,0 +1,17 @@
+# YAML
+
+db:
+    url: 'sqlite:///:memory:'
+
+
+system:
+    wsgi:
+        host: localhost
+        port: 8080
+    logger:
+        level: DEBUG
+        path: ./dev/test/logs
+        system: system.log
+        app: app.log
+        sql: sql.log
+        view: view.log

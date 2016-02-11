@@ -1,0 +1,7 @@
+*.swp
+*.pyc
+
+.cache/
+dev/venv/
+dev/logs/
+dev/test/logs/
