@@ -1,9 +1,9 @@
 import sqlalchemy
 
-import eureka.database
+import eureka.database.base
 
 
-class User(eureka.database.Base):
+class User(eureka.database.base.BaseModel):
     """
     Users
     """

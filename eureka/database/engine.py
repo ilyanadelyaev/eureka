@@ -2,10 +2,8 @@ import contextlib
 
 import sqlalchemy
 import sqlalchemy.orm
-import sqlalchemy.ext.declarative
 
-
-Base = sqlalchemy.ext.declarative.declarative_base()
+import eureka.database.base
 
 
 class DBEngine(object):
@@ -26,15 +24,18 @@ class DBEngine(object):
             )
         )
         #
-        Base.query = self.db_session.query_property()
+        eureka.database.base.BaseModel.query = \
+            self.db_session.query_property()
         self.__ensure_tables()
 
     def __ensure_tables(self):
         """
         Ensure database tables
         """
+        # pylint: disable=W0621
         import eureka.model  # load models to get tables
-        Base.metadata.create_all(bind=self.engine)
+        eureka.database.base.BaseModel.metadata.create_all(
+            bind=self.engine)
 
     @contextlib.contextmanager
     def session_scope(self):

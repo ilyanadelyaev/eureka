@@ -5,7 +5,7 @@ import flask
 
 import eureka.tools.log
 
-import eureka.database
+import eureka.database.engine
 import eureka.logic.controller
 import eureka.view.registry
 
@@ -27,7 +27,7 @@ class Application(object):
         self.config = config
 
         # database engine
-        self.db_engine = eureka.database.DBEngine(config)
+        self.db_engine = eureka.database.engine.DBEngine(config)
 
         # logic controller
         self.controller = eureka.logic.controller.Controller(self.db_engine)
