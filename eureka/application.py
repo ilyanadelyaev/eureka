@@ -1,28 +1,13 @@
-import argparse
 import logging
 
 import gevent.wsgi
 import flask
-import configure
 
 import eureka.tools.log
 
+import eureka.database
 import eureka.logic.controller
 import eureka.view.registry
-
-
-def parse_args():
-    """
-    Add command-line arguments here
-    """
-    # command line arguments parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--config',
-        required=True,
-        help='path to application config',
-    )
-    return parser.parse_args()
 
 
 class Application(object):
@@ -41,14 +26,16 @@ class Application(object):
         """
         self.config = config
 
+        # database engine
+        self.db_engine = eureka.database.DBEngine(config)
+
         # logic controller
-        self.controller = eureka.logic.controller.Controller()
+        self.controller = eureka.logic.controller.Controller(self.db_engine)
 
         # flask app
         self.flask_app = flask.Flask('eureka')
         eureka.view.registry.register_views(self.flask_app)
-        eureka.view.registry.register_flask_before_request(
-            self.flask_app, self.controller)
+        eureka.view.registry.register_flask_before_request(self)
 
         # logging
         eureka.tools.log.setup_logging(config, self.flask_app)
@@ -75,14 +62,3 @@ class Application(object):
         except KeyboardInterrupt:
             pass
         self.logger.info('Terminated')
-
-
-if __name__ == '__main__':
-    args = parse_args()
-
-    # load system config and start application
-    Application(
-        configure.Configuration.from_file(
-            args.config
-        ).configure()
-    ).run()

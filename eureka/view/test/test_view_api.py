@@ -3,12 +3,9 @@ import json
 import pytest
 import flask.ext.webtest
 
-import eureka.application
-
 
 @pytest.fixture(scope='session')
-def web_app(config):
-    application = eureka.application.Application(config)
+def web_app(application):
     return flask.ext.webtest.TestApp(application.flask_app)
 
 
