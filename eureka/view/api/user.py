@@ -52,9 +52,18 @@ def user(pk):
         404 = Not found
     """
     if flask.request.method == 'GET':  # read
-        obj = flask.g.controller.user.one(pk)
-        if not obj:
-            flask.abort(404)
-        return flask.jsonify(obj), 200
+        try:
+            obj = flask.g.controller.user.one(pk)
+            return flask.jsonify(obj), 200
+        except eureka.logic.user.NotExists as ex:
+            return flask.jsonify({'error': ex.message}), 404
+    if flask.request.method == 'PUT':  # update
+        try:
+            flask.g.controller.user.update(pk, flask.request.json)
+            return flask.jsonify({'result': 'OK'}), 200
+        except eureka.logic.user.NotExists as ex:
+            return flask.jsonify({'error': ex.message}), 404
+        except eureka.logic.user.UserError as ex:
+            return flask.jsonify({'error': ex.message}), 204
     else:
         flask.abort(405)  # invalid method

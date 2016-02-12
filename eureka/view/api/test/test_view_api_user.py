@@ -157,10 +157,28 @@ class TestAPIUser:
 
     def test__user__put_200(
             self, web_app,
+            controller, session_scope,
+            user_name, user_email
     ):
         """
         Update - OK
         """
+        _user_id = self.__create_user(
+            session_scope, user_name, user_email)
+        #
+        resp = web_app.put_json(
+            '/api/user/{}/'.format(_user_id),
+            {
+                'name': user_name * 2,
+                'email': user_name + user_email
+            },
+        )
+        assert resp.status_code == 200
+        assert resp.json['result'] == 'OK'
+        #
+        obj = controller.user.one(_user_id)
+        assert obj['name'] == user_name * 2
+        assert obj['email'] == user_name + user_email
 
     def test__user__put_204(
             self, web_app,
@@ -168,13 +186,35 @@ class TestAPIUser:
         """
         Update - No content
         """
+        resp = web_app.put_json(
+            '/api/user/{}/'.format(0),
+            {'name': '', 'email': ''},
+            expect_errors=True
+        )
+        assert resp.status_code == 204
+        #
+        resp = web_app.put_json(
+            '/api/user/{}/'.format(0),
+            {},
+            expect_errors=True
+        )
+        assert resp.status_code == 204
 
     def test__user__put_404(
             self, web_app,
+            user_name, user_email
     ):
         """
         Update - Not found
         """
+        resp = web_app.put_json(
+            '/api/user/{}/'.format(0),
+            {'name': user_name, 'email': user_email},
+            expect_errors=True
+        )
+        assert resp.status_code == 404
+        assert resp.json['error'] == \
+            'User "0" is not exists'
 
     def test__user__delete_200(
             self, web_app,

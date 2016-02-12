@@ -22,6 +22,12 @@ class AlreadyExists(UserError):
             'User with given email already exists')
 
 
+class NotExists(UserError):
+    def __init__(self, pk):
+        super(NotExists, self).__init__(
+            'User "{}" is not exists'.format(pk))
+
+
 class UserManager(object):
     """
     User manager
@@ -31,15 +37,19 @@ class UserManager(object):
         self.db_engine = db_engine
 
     @staticmethod
-    def __validate(name, email):
+    def __validate_name(name):
         """
-        validate new user data
+        raises on error
         """
         if not name:
             raise InvalidArgument('name', name)
-        if not email:
-            raise InvalidArgument('email', email)
-        if not validate_email.validate_email(email):
+
+    @staticmethod
+    def __validate_email(email):
+        """
+        raises on error
+        """
+        if not email or not validate_email.validate_email(email):
             raise InvalidArgument('email', email)
 
     def create(self, data):
@@ -53,7 +63,8 @@ class UserManager(object):
         name = data.get('name', '')
         email = data.get('email', '')
         #
-        self.__validate(name, email)
+        self.__validate_name(name)
+        self.__validate_email(email)
         #
         _user_id = None
         try:
@@ -69,10 +80,40 @@ class UserManager(object):
         except sqlalchemy.exc.IntegrityError:
             raise AlreadyExists()
 
+    def update(self, pk, data):
+        """
+        Update existing user
+        raises on error
+        """
+        if not data:
+            raise UserError('Invalid data')
+        name = data.get('name', '')
+        email = data.get('email', '')
+        if not name and not email:
+            raise UserError('Invalid data')
+        if name:
+            self.__validate_name(name)
+        if email:
+            self.__validate_email(email)
+        try:
+            with self.db_engine.session_scope() as session:
+                obj = session.query(
+                    eureka.model.user.User
+                ).filter_by(id=pk).one()
+                if name:
+                    obj.name = name
+                if email:
+                    obj.email = email
+                session.add(obj)
+                session.flush()
+        except sqlalchemy.orm.exc.NoResultFound:
+            raise NotExists(pk)
+
     def one(self, pk):
         """
         Get one user
         return {obj} or None
+        raises on error
         """
         try:
             with self.db_engine.session_scope() as session:
@@ -81,7 +122,7 @@ class UserManager(object):
                 ).filter_by(id=pk).one()
                 return obj.to_dict()
         except sqlalchemy.orm.exc.NoResultFound:
-            return
+            raise NotExists(pk)
 
     def all(self):
         """
