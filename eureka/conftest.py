@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 import configure
@@ -21,3 +23,18 @@ def application(config):
     Application
     """
     return eureka.application.Application(config)
+
+
+@pytest.fixture
+def article_text():
+    return str(uuid.uuid4()) * 20
+
+
+@pytest.fixture
+def user_name():
+    return str(uuid.uuid4())
+
+
+@pytest.fixture
+def user_email():
+    return '{}@example.com'.format(uuid.uuid4())
