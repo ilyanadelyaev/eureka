@@ -1,7 +1,7 @@
 # YAML
 
 db:
-    url: 'sqlite:./dev/db.sqlite'
+    url: 'sqlite:///dev/db.sqlite'
 
 
 system:
