@@ -5,6 +5,7 @@ SQLAlchemy==1.0.11
 gevent==1.0.2
 
 configure==0.5
+validate-email==1.3
 
 pytest==2.8.7
 Flask-WebTest==0.0.7
