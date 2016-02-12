@@ -4,6 +4,7 @@ import logging
 import flask
 
 from . import api
+from . import web
 
 
 logger = logging.getLogger('view')
@@ -13,8 +14,8 @@ def register_views(flask_app):
     """
     views register magic
     """
-    for module in (api, ):
-        module.register_views(flask_app)
+    for module in (api, web, ):
+        flask_app.register_blueprint(module.blueprint)
 
 
 def register_flask_callbacks(application):

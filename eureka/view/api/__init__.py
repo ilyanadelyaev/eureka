@@ -4,4 +4,4 @@ views register magic
 
 from . import user
 
-from .register import register_views
+from .base import blueprint
