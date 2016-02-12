@@ -4,4 +4,5 @@
 .cache/
 dev/venv/
 dev/logs/
+dev/db.sqlite
 dev/test/logs/

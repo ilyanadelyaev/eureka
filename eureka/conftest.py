@@ -25,6 +25,21 @@ def application(config):
     return eureka.application.Application(config)
 
 
+@pytest.fixture(scope='session')
+# pylint: disable=W0621
+def session_scope(application):
+    return application.db_engine.session_scope
+
+
+@pytest.fixture(scope='session')
+# pylint: disable=W0621
+def controller(application):
+    return application.controller
+
+
+########################################
+
+
 @pytest.fixture
 def article_text():
     return str(uuid.uuid4()) * 20
