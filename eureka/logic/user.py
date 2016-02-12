@@ -109,6 +109,25 @@ class UserManager(object):
         except sqlalchemy.orm.exc.NoResultFound:
             raise NotExists(pk)
 
+    def delete(self, pk):
+        """
+        Delete user
+        raises on error
+        """
+        try:
+            with self.db_engine.session_scope() as session:
+                # check existent to raise exception
+                session.query(
+                    eureka.model.user.User
+                ).filter_by(id=pk).one()
+                # delete
+                session.query(
+                    eureka.model.user.User
+                ).filter_by(id=pk).delete()
+                session.flush()
+        except sqlalchemy.orm.exc.NoResultFound:
+            raise NotExists(pk)
+
     def one(self, pk):
         """
         Get one user

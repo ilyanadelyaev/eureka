@@ -218,10 +218,19 @@ class TestAPIUser:
 
     def test__user__delete_200(
             self, web_app,
+            session_scope, user_name, user_email
     ):
         """
         Delete - OK
         """
+        _user_id = self.__create_user(
+            session_scope, user_name, user_email)
+        #
+        resp = web_app.delete(
+            '/api/user/{}/'.format(_user_id),
+        )
+        assert resp.status_code == 200
+        assert resp.json['result'] == 'OK'
 
     def test__user__delete_404(
             self, web_app,
@@ -229,3 +238,11 @@ class TestAPIUser:
         """
         Delete - Not found
         """
+        resp = web_app.delete(
+            '/api/user/0/',
+            expect_errors=True
+        )
+        assert resp.status_code == 404
+        #
+        assert resp.json['error'] == \
+            'User "0" is not exists'

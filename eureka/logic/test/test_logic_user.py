@@ -140,6 +140,31 @@ class TestUserManager:
         assert ex_info.value.message == \
             'Invalid argument "email": "invalid"'
 
+    def test__delete(
+            self, controller,
+            session_scope, user_name, user_email,
+    ):
+        """
+        Delete user - OK
+        """
+        _user_id = self.__create_user(
+            session_scope, user_name, user_email)
+        #
+        controller.user.delete(_user_id)
+        #
+        with pytest.raises(eureka.logic.user.NotExists):
+            controller.user.one(_user_id)
+
+    def test__delete__not_exists(
+            self, controller,
+            session_scope, user_name, user_email,
+    ):
+        """
+        Delete user - Not exists
+        """
+        with pytest.raises(eureka.logic.user.NotExists):
+            controller.user.delete(0)
+
     def test__one(
             self, controller,
             session_scope, user_name, user_email,
