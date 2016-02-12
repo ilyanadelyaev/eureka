@@ -7,22 +7,35 @@ import eureka.model.user
 
 
 class TestArticle:
-    def test__article(self, session_scope, article_text):
+    def test__article(
+            self, session_scope,
+            user_email, article_text
+    ):
         """
         Create
         """
-        _id = None
+        _user_id = None
+        _article_id = None
         with session_scope() as session:
+            user = eureka.model.user.User(
+                email=user_email,
+            )
+            session.add(user)
+            session.flush()
+            _user_id = user.id
+            #
             article = eureka.model.article.Article(
+                user_id=user.id,
                 text=article_text,
             )
             session.add(article)
             session.flush()
-            _id = article.id
+            _article_id = article.id
         with session_scope() as session:
             obj = session.query(
                 eureka.model.article.Article
-            ).filter_by(id=_id).first()
+            ).filter_by(id=_article_id).first()
+            assert obj.user_id == _user_id
             assert obj.text == article_text
 
     def test__article_star(

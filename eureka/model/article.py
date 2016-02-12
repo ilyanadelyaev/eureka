@@ -15,6 +15,11 @@ class Article(eureka.database.base.AuditBaseModel):
         primary_key=True,
     )
 
+    user_id = sqlalchemy.Column(
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey('users.id'),
+    )
+
     text = sqlalchemy.Column(
         sqlalchemy.Text,
     )
