@@ -34,8 +34,11 @@ class Application(object):
 
         # flask app
         self.flask_app = flask.Flask('eureka')
-        eureka.view.registry.register_views(self.flask_app)
-        eureka.view.registry.register_flask_before_request(self)
+
+        # register flask
+        self.db_engine.register_flask_callbacks(self.flask_app)  # db
+        eureka.view.registry.register_flask_callbacks(self)  # requests
+        eureka.view.registry.register_views(self.flask_app)  # views
 
         # logging
         eureka.tools.log.setup_logging(config, self.flask_app)

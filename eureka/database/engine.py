@@ -37,6 +37,17 @@ class DBEngine(object):
         eureka.database.base.BaseModel.metadata.create_all(
             bind=self.engine)
 
+    def register_flask_callbacks(self, flask_app):
+        # callback functiion
+        # pylint: disable=W0612
+        @flask_app.teardown_appcontext
+        def teardown_appcontext(_=None):  # exception=None
+            """
+            - Shutdown session
+            """
+            # shutdown session
+            self.db_session.remove()
+
     @contextlib.contextmanager
     def session_scope(self):
         """

@@ -17,7 +17,7 @@ def register_views(flask_app):
         module.register_views(flask_app)
 
 
-def register_flask_before_request(application):
+def register_flask_callbacks(application):
     """
     Register here all specific methods per-request call
     """
@@ -61,13 +61,3 @@ def register_flask_before_request(application):
             message += ' {}'.format(resp.data.replace('\n', ''))
         logger.info(message)
         return resp
-
-    # callback functiion
-    # pylint: disable=W0612
-    @application.flask_app.teardown_appcontext
-    def teardown_appcontext(_=None):  # exception=None
-        """
-        - Shutdown session
-        """
-        # shutdown session
-        application.db_engine.db_session.remove()
