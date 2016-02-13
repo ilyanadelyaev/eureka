@@ -41,6 +41,11 @@ def controller(application):
 
 
 @pytest.fixture
+def password():
+    return str(uuid.uuid4())
+
+
+@pytest.fixture
 def article_text():
     return str(uuid.uuid4()) * 20
 
