@@ -2,6 +2,7 @@ import pytest
 
 import eureka.model.user
 import eureka.logic.user
+import eureka.logic.exc
 
 
 class TestUserManager:
@@ -31,8 +32,7 @@ class TestUserManager:
         """
         Create user
         """
-        obj_id = controller.user.create(
-            {'name': user_name, 'email': email})
+        obj_id = controller.user.create(user_name, email)
         #
         obj = controller.user.one(obj_id)
         assert obj['name'] == user_name
@@ -45,13 +45,12 @@ class TestUserManager:
         """
         Create user - email exists
         """
-        controller.user.create({'name': user_name, 'email': email})
+        controller.user.create(user_name, email)
         #
         with pytest.raises(eureka.logic.user.AlreadyExists) as ex_info:
-            controller.user.create(
-                {'name': user_name, 'email': email})
+            controller.user.create(user_name, email)
         assert ex_info.value.message == \
-            'User with given email already exists'
+            'User with email "{}" already exists'.format(email)
 
     def test__create__invalid_args(
             self, controller,
@@ -60,23 +59,38 @@ class TestUserManager:
         """
         Create user - raises on invalid args
         """
-        with pytest.raises(eureka.logic.user.UserError) as ex_info:
-            controller.user.create(None)
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.user.create(None, None)
         assert ex_info.value.message == \
-            'Invalid data'
+            'Invalid argument "name": ":empty:"'
         #
-        with pytest.raises(eureka.logic.user.InvalidArgument) as ex_info:
-            controller.user.create({'name': None, 'email': None})
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.user.create('', None)
         assert ex_info.value.message == \
-            'Invalid argument "name": "None"'
+            'Invalid argument "name": ":empty:"'
         #
-        with pytest.raises(eureka.logic.user.InvalidArgument) as ex_info:
-            controller.user.create({'name': user_name, 'email': None})
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.user.create('n'*61, None)
         assert ex_info.value.message == \
-            'Invalid argument "email": "None"'
+            'Invalid argument "name": ":too long:"'
         #
-        with pytest.raises(eureka.logic.user.InvalidArgument) as ex_info:
-            controller.user.create({'name': user_name, 'email': 'invalid'})
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.user.create(user_name, None)
+        assert ex_info.value.message == \
+            'Invalid argument "email": ":empty:"'
+        #
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.user.create(user_name, '')
+        assert ex_info.value.message == \
+            'Invalid argument "email": ":empty:"'
+        #
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.user.create(user_name, 'e'*255)
+        assert ex_info.value.message == \
+            'Invalid argument "email": ":too long:"'
+        #
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.user.create(user_name, 'invalid')
         assert ex_info.value.message == \
             'Invalid argument "email": "invalid"'
 
@@ -90,10 +104,10 @@ class TestUserManager:
         _user_id = self.__create_user(
             session_scope, user_name, email)
         #
-        controller.user.update(_user_id, {'name': user_name * 2})
+        controller.user.update(_user_id, name=('new_' + user_name))
         #
         obj = controller.user.one(_user_id)
-        assert obj['name'] == user_name * 2
+        assert obj['name'] == 'new_' + user_name
         assert obj['email'] == email
 
     def test__update__email(
@@ -106,11 +120,11 @@ class TestUserManager:
         _user_id = self.__create_user(
             session_scope, user_name, email)
         #
-        controller.user.update(_user_id, {'email': user_name + email})
+        controller.user.update(_user_id, email=('new_' + email))
         #
         obj = controller.user.one(_user_id)
         assert obj['name'] == user_name
-        assert obj['email'] == user_name + email
+        assert obj['email'] == 'new_' + email
 
     def test__update__not_exists(
             self, controller,
@@ -131,12 +145,32 @@ class TestUserManager:
         Update user - invalid args
         """
         with pytest.raises(eureka.logic.user.UserError) as ex_info:
-            controller.user.update(0, {})
+            controller.user.update(0, name=None)
         assert ex_info.value.message == \
             'Invalid data'
         #
-        with pytest.raises(eureka.logic.user.InvalidArgument) as ex_info:
-            controller.user.update(0, {'email': 'invalid'})
+        with pytest.raises(eureka.logic.user.UserError) as ex_info:
+            controller.user.update(0, name='')
+        assert ex_info.value.message == \
+            'Invalid data'
+        #
+        with pytest.raises(eureka.logic.user.UserError) as ex_info:
+            controller.user.update(0, email=None)
+        assert ex_info.value.message == \
+            'Invalid data'
+        #
+        with pytest.raises(eureka.logic.user.UserError) as ex_info:
+            controller.user.update(0, email='')
+        assert ex_info.value.message == \
+            'Invalid data'
+        #
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.user.update(0, email='e'*255)
+        assert ex_info.value.message == \
+            'Invalid argument "email": ":too long:"'
+        #
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.user.update(0, email='invalid')
         assert ex_info.value.message == \
             'Invalid argument "email": "invalid"'
 

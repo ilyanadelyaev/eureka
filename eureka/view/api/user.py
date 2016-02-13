@@ -1,6 +1,7 @@
 import flask
 
 import eureka.logic.user
+import eureka.logic.exc
 
 from eureka.view.api.base import blueprint
 
@@ -29,11 +30,18 @@ def user(pk=None):
     resp_code = None
     #
     if flask.request.method == 'POST':  # create
+        if not flask.request.json:
+            return flask.jsonify({'error': 'Invalid data'}), 404
         try:
-            result = flask.g.controller.user.create(flask.request.json)
+            name = flask.request.json.get('name', '')
+            email = flask.request.json.get('email', '')
+            result = flask.g.controller.user.create(name, email)
         except eureka.logic.user.AlreadyExists as ex:
             return flask.jsonify({'error': ex.message}), 409
-        except eureka.logic.user.UserError as ex:
+        except (
+                eureka.logic.exc.InvalidArgument,
+                eureka.logic.user.UserError,
+        )as ex:
             return flask.jsonify({'error': ex.message}), 404
         resp_data = {
             'obj_id': result,
@@ -56,12 +64,19 @@ def user(pk=None):
                 resp_data, resp_code = {'error': ex.message}, 404
     #
     elif flask.request.method == 'PUT':  # update
+        if not flask.request.json:
+            return flask.jsonify({'error': 'Invalid data'}), 204
         try:
-            flask.g.controller.user.update(pk, flask.request.json)
+            name = flask.request.json.get('name', '')
+            email = flask.request.json.get('email', '')
+            flask.g.controller.user.update(pk, name, email)
             resp_data, resp_code = {'result': 'OK'}, 200
         except eureka.logic.user.NotExists as ex:
             resp_data, resp_code = {'error': ex.message}, 404
-        except eureka.logic.user.UserError as ex:
+        except (
+                eureka.logic.exc.InvalidArgument,
+                eureka.logic.user.UserError,
+        )as ex:
             resp_data, resp_code = {'error': ex.message}, 204
     #
     elif flask.request.method == 'DELETE':

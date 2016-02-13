@@ -17,7 +17,7 @@ class AuthUser(eureka.database.base.BaseModel):
         primary_key=True,
     )
     email = sqlalchemy.Column(
-        sqlalchemy.String(120),
+        sqlalchemy.String(254),
         unique=True,
         index=True,
     )

@@ -56,7 +56,7 @@ class TestAPIUser:
         assert resp.status_code == 409
         #
         assert resp.json['error'] == \
-            'User with given email already exists'
+            'User with email "{}" already exists'.format(email)
 
     def test__user__post_404(
             self, web_app,
@@ -81,7 +81,7 @@ class TestAPIUser:
         )
         assert resp.status_code == 404
         assert resp.json['error'] == \
-            'Invalid argument "name": ""'
+            'Invalid argument "name": ":empty:"'
         #
         resp = web_app.post_json(
             '/api/user/',
@@ -90,7 +90,7 @@ class TestAPIUser:
         )
         assert resp.status_code == 404
         assert resp.json['error'] == \
-            'Invalid argument "email": ""'
+            'Invalid argument "email": ":empty:"'
         #
         resp = web_app.post_json(
             '/api/user/',
@@ -169,16 +169,16 @@ class TestAPIUser:
         resp = web_app.put_json(
             '/api/user/{}/'.format(_user_id),
             {
-                'name': user_name * 2,
-                'email': user_name + email
+                'name': 'new_' + user_name,
+                'email': 'new_' + email
             },
         )
         assert resp.status_code == 200
         assert resp.json['result'] == 'OK'
         #
         obj = controller.user.one(_user_id)
-        assert obj['name'] == user_name * 2
-        assert obj['email'] == user_name + email
+        assert obj['name'] == 'new_' + user_name
+        assert obj['email'] == 'new_' + email
 
     def test__user__put_204(
             self, web_app,

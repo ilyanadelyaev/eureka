@@ -18,7 +18,7 @@ class User(eureka.database.base.BaseModel):
         sqlalchemy.String(60),
     )
     email = sqlalchemy.Column(
-        sqlalchemy.String(150),
+        sqlalchemy.String(254),
         unique=True,
     )
 

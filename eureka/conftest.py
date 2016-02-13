@@ -27,8 +27,14 @@ def application(config):
 
 @pytest.fixture(scope='session')
 # pylint: disable=W0621
-def session_scope(application):
-    return application.db_engine.session_scope
+def db_engine(application):
+    return application.db_engine
+
+
+@pytest.fixture(scope='session')
+# pylint: disable=W0621
+def session_scope(db_engine):
+    return db_engine.session_scope
 
 
 @pytest.fixture(scope='session')

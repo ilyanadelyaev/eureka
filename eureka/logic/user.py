@@ -1,25 +1,27 @@
+import logging
+
 import validate_email
 
 import sqlalchemy.exc
 import sqlalchemy.orm.exc
 
+import eureka.tools.retry
+
+import eureka.logic.base
 import eureka.model.user
 
 
-class UserError(Exception):
+logger = logging.getLogger('eureka')
+
+
+class UserError(eureka.logic.exc.LogicError):
     pass
 
 
-class InvalidArgument(UserError):
-    def __init__(self, arg, val):
-        super(InvalidArgument, self).__init__(
-            'Invalid argument "{}": "{}"'.format(arg, val))
-
-
 class AlreadyExists(UserError):
-    def __init__(self):
+    def __init__(self, email):
         super(AlreadyExists, self).__init__(
-            'User with given email already exists')
+            'User with email "{}" already exists'.format(email))
 
 
 class NotExists(UserError):
@@ -28,40 +30,52 @@ class NotExists(UserError):
             'User "{}" is not exists'.format(pk))
 
 
-class UserManager(object):
+class UserManager(eureka.logic.base.ManagerBase):
     """
     User manager
     """
 
-    def __init__(self, db_engine):
-        self.db_engine = db_engine
-
     @staticmethod
     def __validate_name(name):
         """
+        validate name length bounds: (0..max_length]
         raises on error
         """
         if not name:
-            raise InvalidArgument('name', name)
+            raise eureka.logic.exc.InvalidArgument('name', name)
+        # way to get max field length
+        if len(name) > \
+                eureka.model.user.User.name.\
+                property.columns[0].type.length:
+            raise eureka.logic.exc.InvalidArgument('name', ':too long:')
 
     @staticmethod
     def __validate_email(email):
         """
+        validate email is correct
+        validate email length bounds: (0..max_length]
         raises on error
         """
-        if not email or not validate_email.validate_email(email):
-            raise InvalidArgument('email', email)
+        if not email:
+            raise eureka.logic.exc.InvalidArgument('email', email)
+        # way to get max field length
+        if len(email) > \
+                eureka.model.user.User.email.\
+                property.columns[0].type.length:
+            raise eureka.logic.exc.InvalidArgument('email', ':too long:')
+        #
+        if not validate_email.validate_email(email):
+            raise eureka.logic.exc.InvalidArgument('email', email)
 
-    def create(self, data):
+    # rewrite it to specific errors
+    # TimeoutError
+    @eureka.tools.retry.retry((sqlalchemy.exc.SQLAlchemyError,), logger=logger)
+    def create(self, name, email):
         """
         Create new user
         return obj_id
         raises on error
         """
-        if not data:
-            raise UserError('Invalid data')
-        name = data.get('name', '')
-        email = data.get('email', '')
         #
         self.__validate_name(name)
         self.__validate_email(email)
@@ -78,17 +92,16 @@ class UserManager(object):
                 _user_id = user.id
             return _user_id
         except sqlalchemy.exc.IntegrityError:
-            raise AlreadyExists()
+            raise AlreadyExists(email)
 
-    def update(self, pk, data):
+    # rewrite it to specific errors
+    # TimeoutError
+    @eureka.tools.retry.retry((sqlalchemy.exc.SQLAlchemyError,), logger=logger)
+    def update(self, pk, name=None, email=None):
         """
         Update existing user
         raises on error
         """
-        if not data:
-            raise UserError('Invalid data')
-        name = data.get('name', '')
-        email = data.get('email', '')
         if not name and not email:
             raise UserError('Invalid data')
         if name:
@@ -109,6 +122,9 @@ class UserManager(object):
         except sqlalchemy.orm.exc.NoResultFound:
             raise NotExists(pk)
 
+    # rewrite it to specific errors
+    # TimeoutError
+    @eureka.tools.retry.retry((sqlalchemy.exc.SQLAlchemyError,), logger=logger)
     def delete(self, pk):
         """
         Delete user
@@ -128,6 +144,9 @@ class UserManager(object):
         except sqlalchemy.orm.exc.NoResultFound:
             raise NotExists(pk)
 
+    # rewrite it to specific errors
+    # TimeoutError
+    @eureka.tools.retry.retry((sqlalchemy.exc.SQLAlchemyError,), logger=logger)
     def one(self, pk):
         """
         Get one user
@@ -143,6 +162,9 @@ class UserManager(object):
         except sqlalchemy.orm.exc.NoResultFound:
             raise NotExists(pk)
 
+    # rewrite it to specific errors
+    # TimeoutError
+    @eureka.tools.retry.retry((sqlalchemy.exc.SQLAlchemyError,), logger=logger)
     def all(self):
         """
         Get all users
