@@ -181,7 +181,7 @@ class TestAuthManager:
         with pytest.raises(eureka.logic.auth.AuthError) as ex_info:
             manager.get_auth_token(email, 'invalid')
         assert str(ex_info.value) == \
-            'invalid password'
+            'Invalid password'
 
     def test__get_auth_token__tokens_equal(
             self, session_scope, manager,

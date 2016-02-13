@@ -34,7 +34,7 @@ class TestAPIUser:
         )
         assert resp.status_code == 200
         #
-        obj = controller.user.one(resp.json['obj_id'])
+        obj = controller.user.one(resp.json['id'])
         #
         assert obj['name'] == user_name
         assert obj['email'] == email
@@ -208,7 +208,7 @@ class TestAPIUser:
         Update - Not found
         """
         resp = web_app.put_json(
-            '/api/user/{}/'.format(0),
+            '/api/user/0/',
             {'name': user_name, 'email': email},
             expect_errors=True
         )

@@ -6,5 +6,6 @@ msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'
 # I0011 Locally disabled
 # C0103 Invalid name
 # C0111 Missing docstring
+# R0801 Duplicate code
 # R0903 Too few public methods
-disable=I0011,C0103,C0111,R0903
+disable=I0011,C0103,C0111,R0801,R0903

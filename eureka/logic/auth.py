@@ -144,7 +144,7 @@ class AuthManager(eureka.logic.base.ManagerBase):
                 # validate specified password and db data - raises on error
                 if not eureka.tools.crypto.Crypto.validate_passphrase(
                         password, auth_password.hashed, auth_password.salt):
-                    raise AuthError('invalid password')
+                    raise AuthError('Invalid password')
                 # update auth_token if needed
                 if self.update_auth_token(auth_user):
                     session.add(auth_user)
