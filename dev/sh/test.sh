@@ -4,4 +4,4 @@ PYTHONPATH="./:$PYTHONPATH" py.test
 
 pep8 ./eureka
 
-pylint  --errors-only ./eureka
+pylint  --reports=n ./eureka
