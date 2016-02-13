@@ -9,7 +9,7 @@ import eureka.model.user
 class TestArticle:
     def test__article(
             self, session_scope,
-            user_email, article_text
+            email, article_text
     ):
         """
         Create
@@ -18,7 +18,7 @@ class TestArticle:
         _article_id = None
         with session_scope() as session:
             user = eureka.model.user.User(
-                email=user_email,
+                email=email,
             )
             session.add(user)
             session.flush()
@@ -40,7 +40,7 @@ class TestArticle:
 
     def test__article_star(
             self, session_scope,
-            user_email, article_text
+            email, article_text
     ):
         """
         Create
@@ -49,7 +49,7 @@ class TestArticle:
         _user_id = None
         with session_scope() as session:
             user = eureka.model.user.User(
-                email=user_email,
+                email=email,
             )
             article = eureka.model.article.Article(
                 text=article_text,
@@ -73,14 +73,14 @@ class TestArticle:
 
     def test__article_star__non_unique(
             self, session_scope,
-            user_email, article_text
+            email, article_text
     ):
         """
         Start (arcitle_id, user_id) unique
         """
         with session_scope() as session:
             user = eureka.model.user.User(
-                email=user_email,
+                email=email,
             )
             article = eureka.model.article.Article(
                 text=article_text,

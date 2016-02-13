@@ -3,7 +3,7 @@ import eureka.model.user
 
 class TestAPIUser:
     @staticmethod
-    def __create_user(session_scope, user_name, user_email):
+    def __create_user(session_scope, user_name, email):
         """
         user creation helper
         """
@@ -14,7 +14,7 @@ class TestAPIUser:
             #
             user = eureka.model.user.User(
                 name=user_name,
-                email=user_email,
+                email=email,
             )
             session.add(user)
             session.flush()
@@ -23,34 +23,34 @@ class TestAPIUser:
 
     def test__user__post_201(
             self, web_app,
-            controller, user_name, user_email
+            controller, user_name, email
     ):
         """
         Create - OK
         """
         resp = web_app.post_json(
             '/api/user/',
-            {'name': user_name, 'email': user_email},
+            {'name': user_name, 'email': email},
         )
         assert resp.status_code == 200
         #
         obj = controller.user.one(resp.json['obj_id'])
         #
         assert obj['name'] == user_name
-        assert obj['email'] == user_email
+        assert obj['email'] == email
 
     def test__user__post_409(
             self, web_app,
-            session_scope, user_name, user_email
+            session_scope, user_name, email
     ):
         """
         Create - Already exists
         """
-        self.__create_user(session_scope, user_name, user_email)
+        self.__create_user(session_scope, user_name, email)
         #
         resp = web_app.post_json(
             '/api/user/',
-            {'name': user_name, 'email': user_email},
+            {'name': user_name, 'email': email},
             expect_errors=True
         )
         assert resp.status_code == 409
@@ -103,12 +103,12 @@ class TestAPIUser:
 
     def test__users__get_list_200(
             self, web_app,
-            session_scope, user_name, user_email
+            session_scope, user_name, email
     ):
         """
         Get all - OK
         """
-        self.__create_user(session_scope, user_name, user_email)
+        self.__create_user(session_scope, user_name, email)
         #
         resp = web_app.get(
             '/api/user/',
@@ -117,17 +117,17 @@ class TestAPIUser:
         #
         assert resp.json['count'] == 1
         assert resp.json['objects'][0]['name'] == user_name
-        assert resp.json['objects'][0]['email'] == user_email
+        assert resp.json['objects'][0]['email'] == email
 
     def test__user__get_200(
             self, web_app,
-            session_scope, user_name, user_email
+            session_scope, user_name, email
     ):
         """
         Read - OK
         """
         _user_id = self.__create_user(
-            session_scope, user_name, user_email)
+            session_scope, user_name, email)
         #
         resp = web_app.get(
             '/api/user/{}/'.format(_user_id),
@@ -135,7 +135,7 @@ class TestAPIUser:
         assert resp.status_code == 200
         #
         assert resp.json['name'] == user_name
-        assert resp.json['email'] == user_email
+        assert resp.json['email'] == email
 
     def test__user__get_404(
             self, web_app,
@@ -158,19 +158,19 @@ class TestAPIUser:
     def test__user__put_200(
             self, web_app,
             controller, session_scope,
-            user_name, user_email
+            user_name, email
     ):
         """
         Update - OK
         """
         _user_id = self.__create_user(
-            session_scope, user_name, user_email)
+            session_scope, user_name, email)
         #
         resp = web_app.put_json(
             '/api/user/{}/'.format(_user_id),
             {
                 'name': user_name * 2,
-                'email': user_name + user_email
+                'email': user_name + email
             },
         )
         assert resp.status_code == 200
@@ -178,7 +178,7 @@ class TestAPIUser:
         #
         obj = controller.user.one(_user_id)
         assert obj['name'] == user_name * 2
-        assert obj['email'] == user_name + user_email
+        assert obj['email'] == user_name + email
 
     def test__user__put_204(
             self, web_app,
@@ -202,14 +202,14 @@ class TestAPIUser:
 
     def test__user__put_404(
             self, web_app,
-            user_name, user_email
+            user_name, email
     ):
         """
         Update - Not found
         """
         resp = web_app.put_json(
             '/api/user/{}/'.format(0),
-            {'name': user_name, 'email': user_email},
+            {'name': user_name, 'email': email},
             expect_errors=True
         )
         assert resp.status_code == 404
@@ -218,13 +218,13 @@ class TestAPIUser:
 
     def test__user__delete_200(
             self, web_app,
-            session_scope, user_name, user_email
+            session_scope, user_name, email
     ):
         """
         Delete - OK
         """
         _user_id = self.__create_user(
-            session_scope, user_name, user_email)
+            session_scope, user_name, email)
         #
         resp = web_app.delete(
             '/api/user/{}/'.format(_user_id),

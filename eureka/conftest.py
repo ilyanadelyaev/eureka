@@ -41,6 +41,16 @@ def controller(application):
 
 
 @pytest.fixture
+def email():
+    return '{}@example.com'.format(uuid.uuid4())
+
+
+@pytest.fixture
+def auth_token():
+    return str(uuid.uuid4())
+
+
+@pytest.fixture
 def password():
     return str(uuid.uuid4())
 
@@ -53,8 +63,3 @@ def article_text():
 @pytest.fixture
 def user_name():
     return str(uuid.uuid4())
-
-
-@pytest.fixture
-def user_email():
-    return '{}@example.com'.format(uuid.uuid4())
