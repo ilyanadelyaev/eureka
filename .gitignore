@@ -2,6 +2,7 @@
 *.pyc
 
 .cache/
+node_modules/
 dev/venv/
 dev/logs/
 dev/db.sqlite
