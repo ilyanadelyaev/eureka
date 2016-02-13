@@ -99,7 +99,7 @@ class UserManager(object):
             with self.db_engine.session_scope() as session:
                 obj = session.query(
                     eureka.model.user.User
-                ).filter_by(id=pk).one()
+                ).filter_by(id=pk).with_for_update(read=False).one()
                 if name:
                     obj.name = name
                 if email:
@@ -119,7 +119,7 @@ class UserManager(object):
                 # check existent to raise exception
                 session.query(
                     eureka.model.user.User
-                ).filter_by(id=pk).one()
+                ).filter_by(id=pk).with_for_update(read=False).one()
                 # delete
                 session.query(
                     eureka.model.user.User
