@@ -58,10 +58,22 @@ class ArticleManager(eureka.logic.base.ManagerBase):
         """
         try:
             with self.db_engine.session_scope() as session:
-                obj = session.query(
-                    eureka.model.article.Article
-                ).filter_by(id=pk).one()
-                return obj.to_dict()
+                auth_user, article = session.query(
+                    eureka.model.auth.AuthUser,
+                    eureka.model.article.Article,
+                ).join(eureka.model.article.Article).filter(
+                    (
+                        eureka.model.auth.AuthUser.id ==
+                        eureka.model.article.Article.auth_id
+                    ) & (
+                        eureka.model.article.Article.id == pk
+                    )
+                ).order_by(
+                    eureka.model.article.Article.id.desc()
+                ).one()
+                result = {'auth_email': auth_user.email}
+                result.update(article.to_dict())
+                return result
         except sqlalchemy.orm.exc.NoResultFound:
             raise NotExists(pk)
 
@@ -74,5 +86,18 @@ class ArticleManager(eureka.logic.base.ManagerBase):
         return [{obj}, ...]
         """
         with self.db_engine.session_scope() as session:
-            return [o.to_dict() for o in session.query(
-                eureka.model.article.Article).all()]
+            query = session.query(
+                eureka.model.auth.AuthUser,
+                eureka.model.article.Article,
+            ).join(eureka.model.article.Article).filter(
+                eureka.model.auth.AuthUser.id ==
+                eureka.model.article.Article.auth_id
+            ).order_by(
+                eureka.model.article.Article.id.desc()
+            )
+            result = []
+            for auth_user, article in query.all():
+                dct = {'auth_email': auth_user.email}
+                dct.update(article.to_dict())
+                result.append(dct)
+            return result

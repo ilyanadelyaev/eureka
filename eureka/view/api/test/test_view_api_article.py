@@ -60,6 +60,7 @@ class TestAPIArticle:
         #
         obj = controller.article.one(resp.json['id'])
         #
+        assert obj['auth_email'] == email
         assert obj['auth_id'] == auth_id
         assert obj['text'] == article_text
 
@@ -95,6 +96,7 @@ class TestAPIArticle:
         assert resp.status_code == 200
         #
         assert resp.json['count'] == 1
+        assert resp.json['objects'][0]['auth_email'] == email
         assert resp.json['objects'][0]['auth_id'] == auth_id
         assert resp.json['objects'][0]['text'] == article_text
 
@@ -114,6 +116,7 @@ class TestAPIArticle:
         )
         assert resp.status_code == 200
         #
+        assert resp.json['auth_email'] == email
         assert resp.json['auth_id'] == auth_id
         assert resp.json['text'] == article_text
 

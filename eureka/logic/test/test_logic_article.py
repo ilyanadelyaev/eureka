@@ -55,6 +55,7 @@ class TestArticleManager:
         obj_id = controller.article.create(auth_id, article_text)
         #
         obj = controller.article.one(obj_id)
+        assert obj['auth_email'] == email
         assert obj['auth_id'] == auth_id
         assert obj['text'] == article_text
 
@@ -71,6 +72,7 @@ class TestArticleManager:
         #
         obj = controller.article.one(_article_id)
         #
+        assert obj['auth_email'] == email
         assert obj['auth_id'] == auth_id
         assert obj['text'] == article_text
 
@@ -99,5 +101,6 @@ class TestArticleManager:
         objs = controller.article.all()
         #
         assert len(objs) == 1
+        assert objs[0]['auth_email'] == email
         assert objs[0]['auth_id'] == auth_id
         assert objs[0]['text'] == article_text
