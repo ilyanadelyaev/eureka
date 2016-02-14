@@ -16,6 +16,7 @@
                             id='navbar'
                             className='collapse navbar-collapse'
                         >
+                            {this.props.article_block}
                             {this.props.auth_block}
                         </div>
                     </div>

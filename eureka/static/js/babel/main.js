@@ -5,6 +5,7 @@ var Application = React.createClass({
         return (
             <div className='eureka-application container'>
                 <Eureka.Header
+                    article_block=<Eureka.ArticleHeaderBlock />
                     auth_block=<Eureka.AuthHeaderBlock
                         ref="auth_header_block"
                     />
@@ -12,6 +13,7 @@ var Application = React.createClass({
                 <Eureka.Auth
                     parent_node={this}
                 />
+                <Eureka.Articles />
             </div>
         );
     }
