@@ -3,15 +3,9 @@
 db:
     url: 'sqlite:///:memory:'
 
-
 system:
-    wsgi:
-        host: localhost
-        port: 8080
     logger:
         level: DEBUG
+        handler_type: file
         path: ./dev/test/logs
-        system: system.log
-        app: app.log
-        sql: sql.log
-        view: view.log
+        filename: app.log

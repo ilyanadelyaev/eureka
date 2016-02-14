@@ -1,3 +1,3 @@
 set -x
 
-PYTHONPATH="./:$PYTHONPATH" python ./eureka/run.py --config ./dev/config.yaml
+PYTHONPATH="./:$PYTHONPATH" CONFIGFILE="./dev/config.yaml" python ./eureka/run.py

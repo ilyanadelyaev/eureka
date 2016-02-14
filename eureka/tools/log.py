@@ -10,74 +10,72 @@ def setup_logging(config, flask_app):
     """
 
     # ensure dirs
-    if not os.path.exists(config.system.logger.path):
-        os.makedirs(config.system.logger.path)
+    if config.system.logger.handler_type == 'file':
+        if not os.path.exists(config.system.logger.path):
+            os.makedirs(config.system.logger.path)
 
-    # sql log: sqlalchemy
+    # setup handler
+    handler = __handler(config)
+
+    # sqlalchemy
     __setup_logger(
         'sqlalchemy',
-        os.path.join(
-            config.system.logger.path,
-            config.system.logger.sql
-        ),
         config.system.logger.level,
+        handler,
     )
 
-    # flask log
-    flask_app.logger.addHandler(__logging_file_handler(
-        os.path.join(
-            config.system.logger.path,
-            config.system.logger.system
-        ),
-        config.system.logger.level,
-    ))
+    # flask
+    flask_app.logger.addHandler(handler)
     flask_app.logger.setLevel(config.system.logger.level)
 
-    # view log: view
+    # view
     __setup_logger(
         'view',
-        os.path.join(
-            config.system.logger.path,
-            config.system.logger.view
-        ),
         config.system.logger.level,
+        handler,
     )
 
-    # app log: eureka
+    # eureka
     __setup_logger(
         'eureka',
-        os.path.join(
-            config.system.logger.path,
-            config.system.logger.app
-        ),
         config.system.logger.level,
+        handler,
     )
 
 
-def __logging_file_handler(filename, logging_level):
+def __handler(config):
     """
-    Get time rotating file handler for logger redirection
+    Rotating file handler for logger redirection
     Rotate every midnight
+    or
+    Stream handler
     """
-    file_handler = logging.handlers.TimedRotatingFileHandler(
-        filename=filename,
-        when='midnight',
-        interval=1,
-    )
-    file_handler.setLevel(logging_level)
     formatter = logging.Formatter(
         '[%(asctime)s] %(levelname)s [%(name)s] %(message)s'
     )
-    file_handler.setFormatter(formatter)
-    return file_handler
+    #
+    if config.system.logger.handler_type == 'file':
+        handler = logging.handlers.TimedRotatingFileHandler(
+            filename=os.path.join(
+                config.system.logger.path,
+                config.system.logger.filename,
+            ),
+            when='midnight',
+            interval=1,
+        )
+    else:
+        handler = logging.StreamHandler()  # pylint: disable=R0204
+    #
+    handler.setLevel(config.system.logger.level)
+    handler.setFormatter(formatter)
+    return handler
 
 
-def __setup_logger(log_name, filename, logging_level):
+def __setup_logger(log_name, logging_level, handler):
     """
     Write specified messages for log class :log_name:
-    to file :filename: with :logging_level:
+    to handler :handler: with :logging_level:
     """
-    file_handler = __logging_file_handler(filename, logging_level)
     log = logging.getLogger(log_name)
     log.setLevel(logging_level)
-    log.addHandler(file_handler)
+    log.addHandler(handler)

@@ -1,3 +1,4 @@
+import os
 import contextlib
 
 import sqlalchemy
@@ -12,8 +13,13 @@ class DBEngine(object):
     """
 
     def __init__(self, config):
+        # get from env then from config
+        db_url = os.environ.get('DATABASE_URL', None)
+        if not db_url:
+            db_url = config.db.url
+        #
         self.engine = sqlalchemy.create_engine(
-            config.db.url,
+            db_url,
             convert_unicode=True,
         )
         self.db_session = sqlalchemy.orm.scoped_session(
