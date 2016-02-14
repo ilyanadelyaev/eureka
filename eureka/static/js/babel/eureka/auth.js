@@ -1,2 +1,5 @@
-(function( EurekaAuth, $, undefined ) {
-}( window.EurekaAuth = window.EurekaAuth || {}, jQuery ));
+(function( Eureka, $, undefined ) {
+
+    // Auth
+
+}( window.Eureka = window.Eureka || {}, jQuery ));

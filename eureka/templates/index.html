@@ -1,14 +1,28 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-{% block content %}
-    <div id="content" />
-{% endblock %}
+        <title>Eureka</title>
 
-{% block scripts %}
-    <script src="{{ url_for('static', filename='js/lib/react.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/lib/react-dom.js') }}"></script>
+        <link href="{{ url_for('static', filename='css/lib/bootstrap.min.css') }}" rel="stylesheet">
+        <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+    </head>
 
-    <script src="{{ url_for('static', filename='js/lib/babel-core-browser.min.js') }}"></script>
-    <script type="text/babel" src="{{ url_for('static', filename='js/babel/eureka/auth.js') }}"></script>
-    <script type="text/babel" src="{{ url_for('static', filename='js/babel/index.js') }}"></script>
-{% endblock %}
+    <body>
+        <div id="application"></div>
+
+        <script src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
+
+        <script src="{{ url_for('static', filename='js/lib/react.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/lib/react-dom.js') }}"></script>
+
+        <script src="{{ url_for('static', filename='js/lib/babel-core-browser.min.js') }}"></script>
+
+        <script type="text/babel" src="{{ url_for('static', filename='js/babel/eureka/auth.js') }}"></script>
+        <script type="text/babel" src="{{ url_for('static', filename='js/babel/eureka/header.js') }}"></script>
+        <script type="text/babel" src="{{ url_for('static', filename='js/babel/main.js') }}"></script>
+    </body>
+</html>
