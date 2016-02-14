@@ -3,10 +3,9 @@
     // Header
 
     Eureka.Header = React.createClass({
-        // render
         render: function() {
             return (
-                <div className='navbar navbar-default navbar-fixed-top' >
+                <div className='eureka-header navbar navbar-default navbar-fixed-top' >
                     <div className='container-fluid'>
                         <div className='navbar-header'>
                             <a href='/' className='navbar-brand'>
@@ -17,13 +16,7 @@
                             id='navbar'
                             className='collapse navbar-collapse'
                         >
-                            <ul className='nav navbar-nav navbar-right'>
-                                <li>
-                                    <a href='/signin'>
-                                        Sign in / Sign up
-                                    </a>
-                                </li>
-                            </ul>
+                            {this.props.auth_block}
                         </div>
                     </div>
                 </div>

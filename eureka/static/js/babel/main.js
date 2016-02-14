@@ -1,11 +1,15 @@
+// Application
+
 var Application = React.createClass({
     render: function() {
         return (
-            <div>
-                <Eureka.Header />
-                <div className='container-fluid'>
-                    <h1>Test</h1>
-                </div>
+            <div className='eureka-application container'>
+                <Eureka.Header
+                    auth_block=<Eureka.AuthHeaderBlock />
+                />
+                <Eureka.Auth
+                    parent_node={this}
+                />
             </div>
         );
     }
