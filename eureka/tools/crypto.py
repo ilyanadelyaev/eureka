@@ -1,5 +1,6 @@
 import uuid
 import hashlib
+import random
 
 
 class Crypto(object):
@@ -32,4 +33,8 @@ class Crypto(object):
         """
         Create user auth token
         """
-        return uuid.uuid4().hex + uuid.uuid4().hex
+        seq_1 = list(uuid.uuid4().hex)
+        seq_2 = list(uuid.uuid4().hex)
+        random.shuffle(seq_1)
+        random.shuffle(seq_2)
+        return ''.join(seq_1 + seq_2)
