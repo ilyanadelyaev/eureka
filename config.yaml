@@ -1,0 +1,6 @@
+# YAML
+
+system:
+    logger:
+        level: DEBUG
+        handler_type: stream

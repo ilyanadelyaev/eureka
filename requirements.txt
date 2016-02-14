@@ -1,0 +1,9 @@
+gunicorn==19.4.5
+MySQL-python
+
+Flask==0.10.1
+SQLAlchemy==1.0.11
+gevent==1.0.2
+
+configure==0.5
+validate-email==1.3
