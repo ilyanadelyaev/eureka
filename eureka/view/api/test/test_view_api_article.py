@@ -66,11 +66,14 @@ class TestAPIArticle:
 
     def test__article__post_404(
             self, web_app,
-            session_scope, email, article_text
+            session_scope, email
     ):
         """
         Create - Error
         """
+        auth_token = 'token'
+        auth_id = self.__create_auth(session_scope, email, auth_token)
+        #
         resp = web_app.post_json(
             '/api/article/',
             {},
@@ -79,6 +82,24 @@ class TestAPIArticle:
         assert resp.status_code == 404
         assert resp.json['error'] == \
             'Invalid data'
+        #
+        resp = web_app.post_json(
+            '/api/article/',
+            {'auth_token': auth_token, 'text': None},
+            expect_errors=True
+        )
+        assert resp.status_code == 404
+        assert resp.json['error'] == \
+            'Invalid argument "text": ":empty:"'
+        #
+        resp = web_app.post_json(
+            '/api/article/',
+            {'auth_token': auth_token, 'text': ''},
+            expect_errors=True
+        )
+        assert resp.status_code == 404
+        assert resp.json['error'] == \
+            'Invalid argument "text": ":empty:"'
 
     def test__articless__get_list_200(
             self, web_app,

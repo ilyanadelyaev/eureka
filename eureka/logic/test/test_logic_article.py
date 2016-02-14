@@ -59,6 +59,25 @@ class TestArticleManager:
         assert obj['auth_id'] == auth_id
         assert obj['text'] == article_text
 
+    def test__create__invalid_args(
+            self, controller,
+            session_scope, email, article_text
+    ):
+        """
+        Create article - invalid args
+        """
+        auth_id = self.__create_auth(session_scope, email)
+        #
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.article.create(auth_id, None)
+        assert ex_info.value.message == \
+            'Invalid argument "text": ":empty:"'
+        #
+        with pytest.raises(eureka.logic.exc.InvalidArgument) as ex_info:
+            controller.article.create(auth_id, '')
+        assert ex_info.value.message == \
+            'Invalid argument "text": ":empty:"'
+
     def test__one(
             self, controller,
             session_scope, email, article_text

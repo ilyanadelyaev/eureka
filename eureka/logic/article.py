@@ -5,6 +5,7 @@ import sqlalchemy.orm.exc
 
 import eureka.tools.retry
 
+import eureka.logic.exc
 import eureka.logic.base
 import eureka.model.article
 
@@ -27,6 +28,15 @@ class ArticleManager(eureka.logic.base.ManagerBase):
     Article manager
     """
 
+    @staticmethod
+    def __validate_text(text):
+        """
+        validate name length bounds: (0..
+        raises on error
+        """
+        if not text:
+            raise eureka.logic.exc.InvalidArgument('text', text)
+
     # rewrite it to specific errors
     # TimeoutError
     @eureka.tools.retry.retry((sqlalchemy.exc.SQLAlchemyError,), logger=logger)
@@ -34,7 +44,10 @@ class ArticleManager(eureka.logic.base.ManagerBase):
         """
         Create article
         return obj_id
+        raises on error
         """
+        #
+        self.__validate_text(text)
         #
         _article_id = None
         with self.db_engine.session_scope() as session:

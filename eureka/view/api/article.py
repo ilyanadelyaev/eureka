@@ -2,6 +2,7 @@ import logging
 
 import flask
 
+import eureka.logic.exc
 import eureka.logic.auth
 import eureka.logic.article
 
@@ -31,6 +32,7 @@ def create_article():
             #
             resp_data, resp_code = {'id': article_id}, 201
         except (
+                eureka.logic.exc.InvalidArgument,
                 eureka.logic.article.ArticleError,
                 eureka.logic.auth.NotExists,
         ) as ex:
