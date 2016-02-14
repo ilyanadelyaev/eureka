@@ -1,25 +1,5 @@
 (function( Eureka, $, undefined ) {
 
-    // Articles feed
-
-    Eureka.ArticleHeaderBlock = React.createClass({
-        render: function() {
-            return (
-                <ul className='nav navbar-nav'>
-                    <li>
-                        <a
-                            data-toggle='modal'
-                            data-target='#eureka-modal-article-post'
-                        >
-                            Post idea
-                        </a>
-                    </li>
-                </ul>
-            );
-        }
-    });
-
-
     // Article modal
 
     var _ArticleModal = React.createClass({
@@ -163,7 +143,7 @@
                 return (
                     <blockquote key={article.id}>
                         <p>{article.text}</p>
-                        <footer>{article.id} / {article.auth_id}</footer>
+                        <footer>#{article.id} by {article.auth_email}</footer>
                     </blockquote>
                 );
             });
@@ -171,7 +151,6 @@
             return (
                 <div className='eureka-article'>
 
-                    <h1>Ideas</h1>
                     {articles}
 
                     <_ArticleModal

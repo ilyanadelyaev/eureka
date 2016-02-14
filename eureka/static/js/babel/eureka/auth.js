@@ -3,6 +3,13 @@
     // Auth header
 
     Eureka.AuthHeaderBlock = React.createClass({
+
+        // Handlers
+
+        handleUser: function(e) {
+            e.preventDefault();
+        },
+
         handleLogOut: function(e) {
             e.preventDefault();
             //
@@ -21,6 +28,7 @@
                             <a
                                 data-toggle='modal'
                                 data-target='#eureka-modal-auth-signup'
+                                href='#'
                             >
                                 Sign up
                             </a>
@@ -29,6 +37,7 @@
                             <a
                                 data-toggle='modal'
                                 data-target='#eureka-modal-auth-signin'
+                                href='#'
                             >
                                 Sign in
                             </a>
@@ -39,13 +48,26 @@
                 return (
                     <ul className='nav navbar-nav navbar-right'>
                         <li>
-                            <a>
+                            <a
+                                data-toggle='modal'
+                                data-target='#eureka-modal-article-post'
+                                href='#'
+                            >
+                                Post
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                onClick={this.handleUser}
+                                href='#'
+                            >
                                 {$.cookie('auth_email')}
                             </a>
                         </li>
                         <li>
                             <a
                                 onClick={this.handleLogOut}
+                                href='#'
                             >
                                 Log out
                             </a>

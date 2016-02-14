@@ -6,6 +6,18 @@
         render: function() {
             return (
                 <div className='eureka-header navbar navbar-default navbar-fixed-top' >
+                    <button
+                        type='button'
+                        className='navbar-toggle collapsed'
+                        data-toggle='collapse'
+                        data-target='#eureka-navbar-collapse-1'
+                        aria-expanded='false'
+                    >
+                        <span className='sr-only'>Toggle navigation</span>
+                        <span className='icon-bar'></span>
+                        <span className='icon-bar'></span>
+                        <span className='icon-bar'></span>
+                    </button>
                     <div className='container-fluid'>
                         <div className='navbar-header'>
                             <a href='/' className='navbar-brand'>
@@ -13,7 +25,7 @@
                             </a>
                         </div>
                         <div
-                            id='navbar'
+                            id="eureka-navbar-collapse-1"
                             className='collapse navbar-collapse'
                         >
                             {this.props.article_block}
