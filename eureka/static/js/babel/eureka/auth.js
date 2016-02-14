@@ -1,5 +1,44 @@
 (function( Eureka, $, undefined ) {
 
+    // Error message
+
+    var __show_error = function( error_message, modal_id ) {
+        ReactDOM.render(
+            <_ErrorMessage
+                title='Auth error'
+                error_message={error_message}
+            />,
+            document.getElementById(modal_id)
+        );
+    };
+
+    var _ErrorMessage = React.createClass({
+        render: function() {
+            return (
+                <div
+                    className='alert alert-danger alert-dismissible fade in'
+                    role='alert'
+                >
+                    <button
+                        type='button'
+                        className='close'
+                        data-dismiss='alert'
+                        aria-label='Close'
+                    >
+                        <span aria-hidden='true'>&times;</span>
+                    </button>
+                    <h4>
+                        {this.props.title}
+                    </h4>
+                    <p>
+                        {this.props.error_message}
+                    </p>
+                </div>
+            );
+        }
+    });
+
+
     // Auth header
 
     Eureka.AuthHeaderBlock = React.createClass({
@@ -207,6 +246,7 @@
                             </button>
                         </form>
                     </div>
+                    <div id={this.props.modal_id + '-error'}></div>
                 </div>
                 </div>
                 </div>
@@ -242,7 +282,8 @@
                     this.props.parent_node.refs.auth_header_block.forceUpdate();
                 }.bind(this),
                 error: function(xhr, status, err) {
-                    console.error(url, status, err.toString());
+                    __show_error(xhr.responseJSON.error, 'eureka-modal-auth-signup-error');
+                    console.error(url, xhr.responseJSON);
                 }.bind(this)
             });
         },
@@ -260,7 +301,8 @@
                     this.props.parent_node.refs.auth_header_block.forceUpdate();
                 }.bind(this),
                 error: function(xhr, status, err) {
-                    console.error(url, status, err.toString());
+                    __show_error(xhr.responseJSON.error, 'eureka-modal-auth-signin-error');
+                    console.error(url, xhr.responseJSON);
                 }.bind(this)
             });
         },
@@ -269,7 +311,7 @@
 
         render: function() {
             return (
-                <div className='eureka-auth-modals'>
+                <div className='eureka-auth'>
                     <_AuthModal
                         title='Eureka: Sign up'
                         button_text='Sign up'
