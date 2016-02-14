@@ -3,7 +3,7 @@ import pytest
 import sqlalchemy.orm.exc
 
 import eureka.model.article
-import eureka.model.user
+import eureka.model.auth
 
 
 class TestArticle:
@@ -14,18 +14,18 @@ class TestArticle:
         """
         Create
         """
-        _user_id = None
+        _auth_id = None
         _article_id = None
         with session_scope() as session:
-            user = eureka.model.user.User(
+            auth = eureka.model.auth.AuthUser(
                 email=email,
             )
-            session.add(user)
+            session.add(auth)
             session.flush()
-            _user_id = user.id
+            _auth_id = auth.id
             #
             article = eureka.model.article.Article(
-                user_id=user.id,
+                auth_id=auth.id,
                 text=article_text,
             )
             session.add(article)
@@ -35,7 +35,7 @@ class TestArticle:
             obj = session.query(
                 eureka.model.article.Article
             ).filter_by(id=_article_id).first()
-            assert obj.user_id == _user_id
+            assert obj.auth_id == _auth_id
             assert obj.text == article_text
 
     def test__article_star(
@@ -46,22 +46,22 @@ class TestArticle:
         Create
         """
         _arcitle_id = None
-        _user_id = None
+        _auth_id = None
         with session_scope() as session:
-            user = eureka.model.user.User(
+            auth = eureka.model.auth.AuthUser(
                 email=email,
             )
             article = eureka.model.article.Article(
                 text=article_text,
             )
-            session.add_all((user, article))
+            session.add_all((auth, article))
             session.flush()
-            _user_id = user.id
+            _auth_id = auth.id
             _arcitle_id = article.id
             #
             star = eureka.model.article.Star(
                 arcitle_id=article.id,
-                user_id=user.id,
+                auth_id=auth.id,
             )
             session.add(star)
             session.flush()
@@ -69,35 +69,35 @@ class TestArticle:
             obj = session.query(
                 eureka.model.article.Star
             ).filter_by(arcitle_id=_arcitle_id).first()
-            assert _user_id == obj.user_id
+            assert _auth_id == obj.auth_id
 
     def test__article_star__non_unique(
             self, session_scope,
             email, article_text
     ):
         """
-        Start (arcitle_id, user_id) unique
+        Start (arcitle_id, auth_id) unique
         """
         with session_scope() as session:
-            user = eureka.model.user.User(
+            auth = eureka.model.auth.AuthUser(
                 email=email,
             )
             article = eureka.model.article.Article(
                 text=article_text,
             )
-            session.add_all((user, article))
+            session.add_all((auth, article))
             session.flush()
             #
             star_1 = eureka.model.article.Star(
                 arcitle_id=article.id,
-                user_id=user.id,
+                auth_id=auth.id,
             )
             session.add(star_1)
             session.flush()
             #
             star_2 = eureka.model.article.Star(
                 arcitle_id=article.id,
-                user_id=user.id,
+                auth_id=auth.id,
             )
             session.add(star_2)
             # FlushError: New instance N with identity key (..)

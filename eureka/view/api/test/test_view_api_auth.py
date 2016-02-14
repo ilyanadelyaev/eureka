@@ -12,9 +12,14 @@ class TestAPIAuth:
         """
         Signup - OK
         """
+        # clean
+        with session_scope() as session:
+            eureka.model.auth.AuthPassword.query.delete()
+        #
         resp = web_app.post_json(
             '/api/auth/signup',
             {'email': email, 'password': password},
+            expect_errors=True
         )
         assert resp.status_code == 201
         assert resp.json['result'] == 'OK'
@@ -61,7 +66,7 @@ class TestAPIAuth:
         )
         assert resp.status_code == 409
         assert resp.json['error'] == \
-            'Auth email "{}" already exists'.format(email)
+            'Auth "{}" already exists'.format(email)
 
     def test__signup__post_404(
             self, web_app,
@@ -186,7 +191,7 @@ class TestAPIAuth:
         )
         assert resp.status_code == 404
         assert resp.json['error'] == \
-            'Auth email "{}" not exists'.format(email)
+            'Auth "{}" not exists'.format(email)
 
     def test__signin__post_404_invalid_password(
             self, web_app,

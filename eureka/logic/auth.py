@@ -22,13 +22,13 @@ class AuthError(eureka.logic.exc.LogicError):
 class AlreadyExists(AuthError):
     def __init__(self, email):
         super(AlreadyExists, self).__init__(
-            'Auth email "{}" already exists'.format(email))
+            'Auth "{}" already exists'.format(email))
 
 
 class NotExists(AuthError):
     def __init__(self, email):
         super(NotExists, self).__init__(
-            'Auth email "{}" not exists'.format(email))
+            'Auth "{}" not exists'.format(email))
 
 
 class AuthManager(eureka.logic.base.ManagerBase):
@@ -159,3 +159,21 @@ class AuthManager(eureka.logic.base.ManagerBase):
         #
         except sqlalchemy.orm.exc.NoResultFound:
             raise NotExists(email)
+
+    # rewrite it to specific errors
+    # TimeoutError
+    @eureka.tools.retry.retry((sqlalchemy.exc.SQLAlchemyError,), logger=logger)
+    def get_id_by_token(self, auth_token):
+        """
+        get auth id via auth_token
+        raises on errors
+        """
+        try:
+            with self.db_engine.session_scope() as session:
+                auth_user = session.query(
+                    eureka.model.auth.AuthUser
+                ).filter_by(auth_token=auth_token).one()
+                return auth_user.id
+        #
+        except sqlalchemy.orm.exc.NoResultFound:
+            raise NotExists(':auth_token:')

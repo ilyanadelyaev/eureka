@@ -15,14 +15,24 @@ class Article(eureka.database.base.AuditBaseModel):
         primary_key=True,
     )
 
-    user_id = sqlalchemy.Column(
+    auth_id = sqlalchemy.Column(
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey('users.id'),
+        sqlalchemy.ForeignKey('auth_user.id'),
     )
 
     text = sqlalchemy.Column(
         sqlalchemy.Text,
     )
+
+    def to_dict(self):
+        """
+        fixme
+        """
+        return {
+            'id': self.id,
+            'auth_id': self.auth_id,
+            'text': self.text,
+        }
 
 
 class Star(eureka.database.base.AuditBaseModel):
@@ -38,8 +48,8 @@ class Star(eureka.database.base.AuditBaseModel):
         primary_key=True,  # unique record
     )
 
-    user_id = sqlalchemy.Column(
+    auth_id = sqlalchemy.Column(
         sqlalchemy.Integer,
-        sqlalchemy.ForeignKey('users.id'),
+        sqlalchemy.ForeignKey('auth_user.id'),
         primary_key=True,  # unique record
     )

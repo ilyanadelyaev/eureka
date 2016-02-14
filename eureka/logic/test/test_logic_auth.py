@@ -99,7 +99,7 @@ class TestAuthManager:
         with pytest.raises(eureka.logic.auth.AuthError) as ex_info:
             manager.register(email, password)
         assert ex_info.value.message == \
-            'Auth email "{}" already exists'.format(email)
+            'Auth "{}" already exists'.format(email)
 
     def test__get_auth_token(
             self, session_scope, manager,
@@ -155,7 +155,7 @@ class TestAuthManager:
         with pytest.raises(eureka.logic.auth.NotExists) as ex_info:
             manager.get_auth_token(email, password)
         assert str(ex_info.value) == \
-            'Auth email "{}" not exists'.format(email)
+            'Auth "{}" not exists'.format(email)
 
     def test__get_auth_token__invalid_password(
             self, session_scope, manager,
@@ -208,3 +208,35 @@ class TestAuthManager:
         token_2 = manager.get_auth_token(email, password)
         assert len(token_1) == eureka.tools.crypto.Crypto.auth_token_length
         assert token_1 == token_2
+
+    def test__get_id_by_token(
+            self, session_scope, manager,
+            email,
+    ):
+        """
+        Get id by token - OK
+        """
+        auth_token = eureka.tools.crypto.Crypto.generate_auth_token()
+        _auth_id = None
+        with session_scope() as session:
+            auth_user = eureka.model.auth.AuthUser(
+                email=email,
+                auth_token=auth_token,
+            )
+            session.add(auth_user)
+            session.flush()
+            _auth_id = auth_user.id
+        #
+        assert _auth_id == manager.get_id_by_token(auth_token)
+
+    def test__get_id_by_token__not_exists(
+            self, session_scope, manager,
+            email, password,
+    ):
+        """
+        Get id by token - not exists
+        """
+        with pytest.raises(eureka.logic.auth.NotExists) as ex_info:
+            manager.get_id_by_token('invalid')
+        assert str(ex_info.value) == \
+            'Auth ":auth_token:" not exists'
