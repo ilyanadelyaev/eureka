@@ -123,7 +123,7 @@
             }
             return (
                 <form
-                    className='eureka-signup-form'
+                    className='eureka-auth-form'
                     onSubmit={this.handleSubmit}
                 >
                     <div className='form-group'>
@@ -163,7 +163,7 @@
     });
 
 
-    // Modal popup
+    // Auth modal
 
     var _AuthModal = React.createClass({
         render: function() {
@@ -247,7 +247,7 @@
                 dataType: 'json',
                 success: function(data) {
                     $('#eureka-modal-auth-signin').modal('hide');
-                    this.props.parent_node.forceUpdate();
+                    this.props.parent_node.refs.auth_header_block.forceUpdate();
                 }.bind(this),
                 error: function(xhr, status, err) {
                     console.error(url, status, err.toString());
