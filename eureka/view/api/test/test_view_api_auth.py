@@ -1,5 +1,6 @@
 import eureka.tools.crypto
 import eureka.model.auth
+import eureka.logic.auth
 
 
 class TestAPIAuth:
@@ -126,19 +127,20 @@ class TestAPIAuth:
         )
         assert resp.status_code == 405
 
-    def test__login__post_200(
+    def test__signin__post_200(
             self, web_app,
             session_scope,
             email, password,
     ):
         """
-        Login - OK
+        Signin - OK
         """
         hashed, salt = eureka.tools.crypto.Crypto.hash_passphrase(password)
         #
         with session_scope() as session:
             auth_user = eureka.model.auth.AuthUser(
                 email=email,
+                auth_token=eureka.logic.auth.AuthManager.AUTH_TOKEN_MOCK,
             )
             session.add(auth_user)
             session.flush()
@@ -152,21 +154,33 @@ class TestAPIAuth:
             session.flush()
         #
         resp = web_app.post_json(
-            '/api/auth/login',
+            '/api/auth/signin',
             {'email': email, 'password': password},
         )
         assert resp.status_code == 200
         assert resp.json['result'] == 'OK'
+        #
+        with session_scope() as session:
+            auth_user = session.query(
+                eureka.model.auth.AuthUser
+            ).filter(
+                eureka.model.auth.AuthUser.email == email
+            ).one()
+            assert set(resp.headers.dict_of_lists()['set-cookie']) == \
+                set((
+                    'auth_email="{}"; Path=/'.format(auth_user.email),
+                    'auth_token={}; Path=/'.format(auth_user.auth_token),
+                ))
 
-    def test__login__post_404_not_exists(
+    def test__signin__post_404_not_exists(
             self, web_app,
             email, password
     ):
         """
-        Login - error - not exists
+        Signin - error - not exists
         """
         resp = web_app.post_json(
-            '/api/auth/login',
+            '/api/auth/signin',
             {'email': email, 'password': password},
             expect_errors=True
         )
@@ -174,13 +188,13 @@ class TestAPIAuth:
         assert resp.json['error'] == \
             'Auth email "{}" not exists'.format(email)
 
-    def test__login__post_404_invalid_password(
+    def test__signin__post_404_invalid_password(
             self, web_app,
             session_scope,
             email, password,
     ):
         """
-        Login - error - invalid password
+        Signin - error - invalid password
         """
         hashed, salt = eureka.tools.crypto.Crypto.hash_passphrase(password)
         #
@@ -200,21 +214,21 @@ class TestAPIAuth:
             session.flush()
         #
         resp = web_app.post_json(
-            '/api/auth/login',
+            '/api/auth/signin',
             {'email': email, 'password': 'invalid'},
             expect_errors=True
         )
         assert resp.status_code == 404
         assert resp.json['error'] == 'Invalid password'
 
-    def test__login__post_404_invalid_args(
+    def test__signin__post_404_invalid_args(
             self, web_app,
     ):
         """
-        Login - error - invalid args
+        Signin - error - invalid args
         """
         resp = web_app.post_json(
-            '/api/auth/login',
+            '/api/auth/signin',
             {},
             expect_errors=True
         )
@@ -223,7 +237,7 @@ class TestAPIAuth:
             'Invalid data'
         #
         resp = web_app.post_json(
-            '/api/auth/login',
+            '/api/auth/signin',
             {'email': ''},
             expect_errors=True
         )
@@ -232,7 +246,7 @@ class TestAPIAuth:
             'Invalid argument "email": ":empty:"'
         #
         resp = web_app.post_json(
-            '/api/auth/login',
+            '/api/auth/signin',
             {'email': None},
             expect_errors=True
         )
@@ -241,7 +255,7 @@ class TestAPIAuth:
             'Invalid argument "email": ":empty:"'
         #
         resp = web_app.post_json(
-            '/api/auth/login',
+            '/api/auth/signin',
             {'email': 'e'*255},
             expect_errors=True
         )
@@ -250,7 +264,7 @@ class TestAPIAuth:
             'Invalid argument "email": ":too long:"'
         #
         resp = web_app.post_json(
-            '/api/auth/login',
+            '/api/auth/signin',
             {'email': 'invalid'},
             expect_errors=True
         )
@@ -258,58 +272,14 @@ class TestAPIAuth:
         assert resp.json['error'] == \
             'Invalid argument "email": "invalid"'
 
-    def test__login__get_405(
+    def test__signin__get_405(
             self, web_app,
     ):
         """
-        Login - not allowed
+        Signin - not allowed
         """
         resp = web_app.get(
-            '/api/auth/login',
-            expect_errors=True
-        )
-        assert resp.status_code == 405
-
-    def test__logout__post_200(
-            self, web_app,
-            email,
-    ):
-        """
-        Login - OK
-        """
-        resp = web_app.post_json(
-            '/api/auth/logout',
-            {'email': email},
-            expect_errors=True
-        )
-        # TODO: implement and fix
-        assert resp.status_code == 404
-        assert resp.json['error'] == 'Not implemented'
-
-    def test__logout__post_404(
-            self, web_app,
-    ):
-        """
-        Login - invalid args
-        """
-        resp = web_app.post_json(
-            '/api/auth/logout',
-            {},
-            expect_errors=True
-        )
-        assert resp.status_code == 404
-        assert resp.json['error'] == 'Invalid data'
-        #
-        # TODO: implement and add more cases
-
-    def test__logout__get_405(
-            self, web_app,
-    ):
-        """
-        Login - not allowed
-        """
-        resp = web_app.get(
-            '/api/auth/logout',
+            '/api/auth/signin',
             expect_errors=True
         )
         assert resp.status_code == 405

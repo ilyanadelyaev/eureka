@@ -43,13 +43,14 @@ def signup():
     return flask.jsonify(resp_data), resp_code
 
 
-@blueprint.route('/auth/login', methods=['POST'])
-def login():
+@blueprint.route('/auth/signin', methods=['POST'])
+def signin():
     """
-    Login user
+    Signin user
     """
     resp_data = None
     resp_code = None
+    cookies = []
     #
     if flask.request.method == 'POST':
         if flask.request.json:
@@ -60,6 +61,9 @@ def login():
                 auth_token = flask.g.controller.auth.get_auth_token(
                     email, password)
                 # set cookie with auth_token
+                cookies.append(('auth_email', email or ''))
+                cookies.append(('auth_token', auth_token or ''))
+                #
                 resp_data, resp_code = {'result': 'OK'}, 200
             except (
                     eureka.logic.exc.InvalidArgument,
@@ -76,24 +80,7 @@ def login():
     else:
         flask.abort(405)  # invalid method
     #
-    return flask.jsonify(resp_data), resp_code
-
-
-@blueprint.route('/auth/logout', methods=['POST'])
-def logout():
-    """
-    Logout user
-    """
-    resp_data = None
-    resp_code = None
-    #
-    if flask.request.method == 'POST':
-        if flask.request.json:
-            # TODO: implement logout
-            resp_data, resp_code = {'error': 'Not implemented'}, 404
-        else:
-            resp_data, resp_code = {'error': 'Invalid data'}, 404
-    else:
-        flask.abort(405)  # invalid method
-    #
-    return flask.jsonify(resp_data), resp_code
+    response = flask.jsonify(resp_data)
+    for cookie in cookies:
+        response.set_cookie(*cookie)
+    return response, resp_code
