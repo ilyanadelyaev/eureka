@@ -57,17 +57,9 @@
     });
 
 
-    // Auth form
+    // Auth modal
 
-    var _AuthForm = React.createClass({
-
-        // Init
-
-        getInitialState: function() {
-            return {
-                password_error: ''
-            };
-        },
+    var _AuthModal = React.createClass({
 
         // Handlers
 
@@ -76,14 +68,30 @@
             //
             var email = this.refs.auth_email.value.trim();
             var password = this.refs.auth_password.value;
-            //
-            if ( ! email || ! password )
+            // email check
+            if ( ! email ) {
+                $('#' + this.props.modal_id).find('.eureka-auth-email').addClass('has-error');
                 return;
+            } else {
+                $('#' + this.props.modal_id).find('.eureka-auth-email').removeClass('has-error');
+            }
+            // password check
+            if ( ! password ) {
+                $('#' + this.props.modal_id).find('.eureka-auth-password').addClass('has-error');
+                return;
+            } else {
+                $('#' + this.props.modal_id).find('.eureka-auth-password').removeClass('has-error');
+            }
+            // password repeat check
             if ( this.props.password_repeat ) {
                 var password_repeat = this.refs.auth_password_repeat.value;
                 if ( password != password_repeat ) {
-                    this.setState({password_error: 'Passwords not equal'});
+                    $('#' + this.props.modal_id).find('.eureka-auth-password').addClass('has-error');
+                    $('#' + this.props.modal_id).find('.eureka-auth-password-repeat').addClass('has-error');
                     return;
+                } else {
+                    $('#' + this.props.modal_id).find('.eureka-auth-password').removeClass('has-error');
+                    $('#' + this.props.modal_id).find('.eureka-auth-password-repeat').removeClass('has-error');
                 }
             }
             //
@@ -102,71 +110,21 @@
             var password_repeat = null;
             if ( this.props.password_repeat ) {
                 password_repeat = (
-                    <div className='form-group'>
-                        <label htmlFor='auth_password_repeat'>
+                    <div className='form-group eureka-auth-password-repeat'>
+                        <label htmlFor='eureka-auth-password-repeat'>
                             Repeat password
                         </label>
                         <input
                             type='password'
-                            id='auth_password_repeat'
+                            id='eureka-auth-password-repeat'
                             ref='auth_password_repeat'
                             className='form-control'
                             placeholder="********"
                         />
-                        <div
-                            className='alert alert-danger'
-                        >
-                            {this.state.password_error}
-                        </div>
                     </div>
                 );
             }
-            return (
-                <form
-                    className='eureka-auth-form'
-                    onSubmit={this.handleSubmit}
-                >
-                    <div className='form-group'>
-                        <label htmlFor='auth_email'>
-                            Email address
-                        </label>
-                        <input
-                            type='email'
-                            id='auth_email'
-                            ref='auth_email'
-                            className='form-control'
-                            placeholder="mail@example.com"
-                        />
-                    </div>
-                    <div className='form-group'>
-                        <label htmlFor='auth_password'>
-                            Password
-                        </label>
-                        <input
-                            type='password'
-                            id='auth_password'
-                            ref='auth_password'
-                            className='form-control'
-                            placeholder="********"
-                        />
-                    </div>
-                    {password_repeat}
-                    <button
-                        type='submit'
-                        className='btn btn-default'
-                    >
-                        {this.props.button_text}
-                    </button>
-                </form>
-            );
-        }
-    });
-
-
-    // Auth modal
-
-    var _AuthModal = React.createClass({
-        render: function() {
+            //
             return (
                 <div
                     id={this.props.modal_id}
@@ -190,12 +148,42 @@
                         </h4>
                     </div>
                     <div className='modal-body'>
-                        <_AuthForm
-                            button_text={this.props.button_text}
-                            password_repeat={this.props.password_repeat}
-                            submitHandler={this.props.submitHandler}
-                        />
-                        {this.props.children}
+                        <form
+                            className='eureka-auth-form'
+                            onSubmit={this.handleSubmit}
+                        >
+                            <div className='form-group eureka-auth-email'>
+                                <label htmlFor='eureka-auth-email'>
+                                    Email address
+                                </label>
+                                <input
+                                    type='email'
+                                    id='eureka-auth-email'
+                                    ref='auth_email'
+                                    className='form-control'
+                                    placeholder="mail@example.com"
+                                />
+                            </div>
+                            <div className='form-group eureka-auth-password'>
+                                <label htmlFor='eureka-auth-password'>
+                                    Password
+                                </label>
+                                <input
+                                    type='password'
+                                    id='eureka-auth-password'
+                                    ref='auth_password'
+                                    className='form-control'
+                                    placeholder="********"
+                                />
+                            </div>
+                            {password_repeat}
+                            <button
+                                type='submit'
+                                className='btn btn-default'
+                            >
+                                {this.props.button_text}
+                            </button>
+                        </form>
                     </div>
                 </div>
                 </div>
@@ -229,7 +217,7 @@
                 dataType: 'json',
                 success: function(data) {
                     $('#eureka-modal-auth-signup').modal('hide');
-                    this.props.parent_node.forceUpdate();
+                    this.props.parent_node.refs.auth_header_block.forceUpdate();
                 }.bind(this),
                 error: function(xhr, status, err) {
                     console.error(url, status, err.toString());
